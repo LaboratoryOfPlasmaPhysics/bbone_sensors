@@ -1,0 +1,7 @@
+---
+- name:
+  hosts: new_bbone
+  remote_user: debian
+  become: yes
+  roles:
+    - bbone

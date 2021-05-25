@@ -49,9 +49,9 @@ def measurement_loop(db):
     if uart.is_open:
         uart.readline()
         measurements = []
+        last_tx = time.time()
         while True:
             measurement = uart.readline().decode().strip()
-            last_tx = time.time()
             if '#' not in measurement:
                 name, value = measurement.split('\t')
                 path = [HOSTNAME] + name.split('/')[:-1]

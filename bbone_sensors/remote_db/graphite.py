@@ -22,6 +22,9 @@ class GraphiteRemote:
         except OSError:
             self.__connected = False
 
+    def close(self):
+        self.sock.close()
+
     def is_connected(self):
         return self.__connected
 
@@ -36,4 +39,3 @@ class GraphiteRemote:
                 self.sock.sendall(message)
             except OSError:
                 self.__connected = False
-

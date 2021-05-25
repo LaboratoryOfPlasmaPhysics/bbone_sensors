@@ -1,0 +1,8 @@
+---
+# avail range 129.104.6.165 129.104.6.174
+all:
+  children:
+    new_bbone:
+      hosts:
+        bbone1.lab-lpp.local:
+          ansible_host: 192.168.7.2

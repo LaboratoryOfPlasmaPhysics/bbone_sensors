@@ -1,0 +1,79 @@
+- name: Set hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Disable unused services
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+      - nginx
+      - cloud9
+
+- name: Install chrony
+  package:
+    name: [chrony]
+    state: present
+  ignore_errors: True
+
+- name: Enable chronyd
+  service:
+    name: chronyd
+    state: started
+    enabled: yes
+
+- name: Set timezone to Europe/Paris
+  timezone:
+    name: Europe/Paris
+
+
+- name: get connman eth service name
+  shell: connmanctl services | tr -s ' ' '\n'  | grep $(cat /sys/class/net/eth0/address | sed s/://g)
+  register: eth0_connmactl_service
+
+- name: get connman eth service config
+  shell: connmanctl services {{ eth0_connmactl_service.stdout }}
+  register: eth0_connmactl_service_status
+
+- name: configure nameservers
+  shell: |
+    connmanctl config {{ eth0_connmactl_service.stdout }} --nameservers 129.104.27.18 129.104.30.41 134.157.77.107
+    connmanctl config {{ eth0_connmactl_service.stdout }} --domains lab-lpp.local lpp.polytechnique.fr
+  when: "'129.104.27.18' not in eth0_connmactl_service_status.stdout or 'lab-lpp.local' not in eth0_connmactl_service_status.stdout or 'lpp.polytechnique.fr' not in eth0_connmactl_service_status.stdout"
+
+- name: install/upgrade bbone_sensors python package
+  become: yes
+  become_user: debian
+  shell: pip3 install --user --upgrade git+https://github.com/LaboratoryOfPlasmaPhysics/bbone_sensors
+
+
+- name: BBone sensors service Unit file
+  copy:
+    dest: "/etc/systemd/system/bbone-sensors.service"
+    content: |
+      [Unit]
+      Description=Monitores bbone sensore cape and push data to graphite
+      After=network.target
+      StartLimitIntervalSec=0
+      [Service]
+      Type=simple
+      Restart=always
+      RuntimeMaxSec=86400 #1 day
+      RestartSec=1
+      User=debian
+      ExecStart= pip3 install --user --upgrade git+https://github.com/LaboratoryOfPlasmaPhysics/bbone_sensors && /home/debian/.local/bin/bbone_sensors
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start BBone sensors service
+  systemd:
+    name: bbone-sensors
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
