@@ -10,7 +10,7 @@ class TestGraphiteConnection(unittest.TestCase):
         self.graphite = GraphiteRemote(carbon_server=graphite_hostname.get(), carbon_server_port=int(graphite_pickle_port.get()))
 
     def tearDown(self) -> None:
-        self.graphite.close()
+        pass
 
     def test_send_one(self):
         self.graphite.send_metrics([Metric(['Tests','bbone_sensors'], "simple", 1., time.time())])

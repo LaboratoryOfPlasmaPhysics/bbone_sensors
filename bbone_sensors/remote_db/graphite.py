@@ -11,31 +11,16 @@ class GraphiteRemote:
     def __init__(self, carbon_server, carbon_server_port):
         self.carbon_server = carbon_server
         self.carbon_server_port = carbon_server_port
-        self.sock = socket.socket()
-        self.__connected = False
-        self.connect()
-
-    def connect(self):
-        try:
-            self.sock.connect((self.carbon_server, self.carbon_server_port))
-            self.__connected = True
-        except OSError:
-            self.__connected = False
-
-    def close(self):
-        self.sock.close()
-
-    def is_connected(self):
-        return self.__connected
 
     def send_metrics(self, metrics: List[Metric]):
-        if self.__connected:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.connect((self.carbon_server, self.carbon_server_port))
             payload = pickle.dumps([
-                ('/'.join(metric.path) + '/' + metric.name, (metric.time, metric.value))
+                ('/'.join(metric.path) + '/' + metric.name, (int(metric.time), metric.value))
                 for metric in metrics], protocol=2)
             header = struct.pack("!L", len(payload))
             message = header + payload
             try:
-                self.sock.sendall(message)
+                sock.sendall(message)
             except OSError:
-                self.__connected = False
+                print("Can't send data to graphite")
