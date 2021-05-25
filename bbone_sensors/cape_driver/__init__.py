@@ -22,8 +22,8 @@ BOOT0_PIN = "P9_23"
 
 def config_gpio():
     GPIO.setup(BOOT0_PIN, GPIO.OUT)
-    GPIO.setup(RESET_PIN, GPIO.OUT)
     GPIO.output(BOOT0_PIN, GPIO.LOW)
+    GPIO.setup(RESET_PIN, GPIO.OUT)
 
 
 def reset_cape():

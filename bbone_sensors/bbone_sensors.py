@@ -43,6 +43,7 @@ def update_firmware():
 def measurement_loop(db):
     config_gpio()
     update_firmware()
+    reset_cape()
     HOSTNAME = socket.gethostname().replace(".", "_")
     uart = Serial(port=serial_port_name.get(), baudrate=int(serial_port_speed.get()))
     if uart.is_open:
@@ -50,11 +51,13 @@ def measurement_loop(db):
         measurements = []
         while True:
             measurement = uart.readline().decode().strip()
+            last_tx = time.time()
             if '#' not in measurement:
                 name, value = measurement.split('\t')
                 path = [HOSTNAME] + name.split('/')[:-1]
                 name = name.split('/')[-1]
                 measurements.append(Metric(path, name, value, int(time.time())))
-                if len(measurements) >= 10:
+                if len(measurements) > 0 and (time.time()-last_tx) > 60:
                     db.send_metrics(measurements)
                     measurements.clear()
+                    last_tx = time.time()
