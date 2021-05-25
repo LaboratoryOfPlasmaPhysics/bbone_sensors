@@ -66,7 +66,8 @@
       RuntimeMaxSec=86400 #1 day
       RestartSec=1
       User=debian
-      ExecStart= pip3 install --user --upgrade git+https://github.com/LaboratoryOfPlasmaPhysics/bbone_sensors && /home/debian/.local/bin/bbone_sensors
+      ExecStartPre=/usr/bin/pip3 install --user --upgrade git+https://github.com/LaboratoryOfPlasmaPhysics/bbone_sensors
+      ExecStart=/home/debian/.local/bin/bbone_sensors
 
       [Install]
       WantedBy=multi-user.target

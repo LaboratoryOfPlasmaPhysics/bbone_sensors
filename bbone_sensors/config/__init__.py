@@ -44,5 +44,5 @@ current_firmware_version = ConfigEntry("Firmware", "current_version", "0")
 serial_port_name = ConfigEntry("serial", "port_name", "/dev/ttyO1")
 serial_port_speed = ConfigEntry("serial", "baud", "115200")
 
-graphite_hostname = ConfigEntry("graphite", "hostname", "sensors.lab-lpp.local")
+graphite_hostname = ConfigEntry("graphite", "hostname", "129.104.6.165")
 graphite_pickle_port = ConfigEntry("graphite", "pickle_port", "12004")
