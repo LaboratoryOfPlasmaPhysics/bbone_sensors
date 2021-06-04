@@ -25,7 +25,7 @@ def download_latest_firmware():
 
 def flash_firmware(fname):
     start_bootloader()
-    cmd = ["stm32loader.py", "-p", serial_port_name.get(), "-e", "-w", "-v", fname]
+    cmd = ["stm32loader", "-p", serial_port_name.get(), "-e", "-w", "-v", fname]
     res = subprocess.run(cmd)
     reset_cape()
     return res.returncode == 0
