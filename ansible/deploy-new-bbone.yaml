@@ -1,7 +1,37 @@
 ---
+#- name:
+#  hosts: new_bbone
+#  remote_user: debian
+#  become: yes
+#  roles:
+#    - bbone
+
 - name:
   hosts: new_bbone
-  remote_user: debian
-  become: yes
+  vars_prompt:
+    - name: new_password
+      prompt: Enter password
+      private: yes
+      encrypt: "sha512_crypt"
+      confirm: yes
+      salt_size: 7
+
+  pre_tasks:
+    - set_fact:
+        hostname: "{{ host_entry }}"
+        IP: "{{  hostvars[host_entry]['ansible_host'] }}"
+  tasks:
+    - name: test
+      debug:
+        msg: |
+          "{{ hostname }}"
+          "{{ hostname.split('.')[0] }}"
+          "{{ IP }}"
   roles:
     - bbone
+  post_tasks:
+    - name: update password
+      user:
+        name: debian
+        password:  '{{new_password}}'
+      become: yes

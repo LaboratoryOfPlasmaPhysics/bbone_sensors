@@ -1,11 +1,13 @@
 127.0.0.1	localhost
-127.0.1.1   {{ inventory_hostname }}
+127.0.1.1   {{ hostname.split('.')[0] }}
 
 129.104.27.18   pc-lppx.lab-lpp.local pc-lppx.lpp.polytechnique.fr pc-lppx
 129.104.27.22   pc-lpp3.lab-lpp.local pc-lpp3.lpp.polytechnique.fr pc-lpp3
 129.104.27.23   pc-lpp4.lab-lpp.local pc-lpp4.lpp.polytechnique.fr pc-lpp4
 134.157.77.106  pc-lpp1.lab-lpp.local pc-lpp1.lpp.upmc.fr pc-lpp1
 134.157.77.107  pc-lpp2.lab-lpp.local pc-lpp2.lpp.upmc.fr pc-lpp2
+
+{{ IP }} {{ hostname }} {{ hostname.split('.')[0] }}
 
 
 # The following lines are desirable for IPv6 capable hosts

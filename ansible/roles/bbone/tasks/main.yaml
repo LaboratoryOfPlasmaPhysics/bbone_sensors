@@ -1,3 +1,13 @@
+- set_fact: hostname="{{ host_entry }}"
+  when: hostname is undefined
+
+- set_fact: IP="{{  hostvars[host_entry]['ansible_host'] }}"
+  when: IP is undefined
+
+- name: set hostname 
+  hostname:
+    name: "{{ hostname }}"
+
 - name: Set hosts file
   template:
     src: hosts.j2
@@ -42,9 +52,50 @@
 
 - name: configure nameservers
   shell: |
-    connmanctl config {{ eth0_connmactl_service.stdout }} --nameservers 129.104.27.18 129.104.30.41 134.157.77.107
-    connmanctl config {{ eth0_connmactl_service.stdout }} --domains lab-lpp.local lpp.polytechnique.fr
+    connmanctl config {{ eth0_connmactl_service.stdout }} --ipv4 manual {{ IP }} 255.255.255.0 129.104.6.254 --nameservers 129.104.27.18 129.104.30.41 134.157.77.107 --domains lab-lpp.local lpp.polytechnique.fr
   when: "'129.104.27.18' not in eth0_connmactl_service_status.stdout or 'lab-lpp.local' not in eth0_connmactl_service_status.stdout or 'lpp.polytechnique.fr' not in eth0_connmactl_service_status.stdout"
+
+
+- name: "Enable UART1"
+  lineinfile:
+    path: "/boot/uEnv.txt"
+    insertafter: 'enable_uboot_overlays=1'
+    state: present
+    line: "uboot_overlay_addr0=/lib/firmware/BB-UART1-00A0.dtbo"
+  register: uart1_changed
+
+- name: "Disable video overlay"
+  lineinfile:
+    path: "/boot/uEnv.txt"
+    regexp: '^#disable_uboot_overlay_video=1$'
+    line: 'disable_uboot_overlay_video=1'
+    backrefs: yes
+
+- name: "Disable audio overlay"
+  lineinfile:
+    path: "/boot/uEnv.txt"
+    regexp: '^#disable_uboot_overlay_audio=1$'
+    line: 'disable_uboot_overlay_audio=1'
+    backrefs: yes
+
+- name: "Disable wireless overlay"
+  lineinfile:
+    path: "/boot/uEnv.txt"
+    regexp: '^#disable_uboot_overlay_wireless=1$'
+    line: 'disable_uboot_overlay_wireless=1'
+    backrefs: yes
+
+- name: "Disable adc overlay"
+  lineinfile:
+    path: "/boot/uEnv.txt"
+    regexp: '^#disable_uboot_overlay_adc=1$'
+    line: 'disable_uboot_overlay_adc=1'
+    backrefs: yes
+
+- name: reboot the machine to enable UART1
+  reboot:
+  when: uart1_changed.changed
+
 
 - name: install/upgrade bbone_sensors python package
   become: yes
@@ -66,6 +117,7 @@
       RuntimeMaxSec=86400 #1 day
       RestartSec=1
       User=debian
+      Environment=PATH=/home/debian/.local/bin:/home/debian/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       ExecStartPre=/usr/bin/pip3 install --user --upgrade git+https://github.com/LaboratoryOfPlasmaPhysics/bbone_sensors
       ExecStart=/home/debian/.local/bin/bbone_sensors
 

@@ -1,8 +1,33 @@
 ---
-# avail range 129.104.6.165 129.104.6.174
+# avail range 129.104.6.212 129.104.6.221
 all:
   children:
     new_bbone:
       hosts:
-        bbone1.lab-lpp.local:
-          ansible_host: 192.168.7.2
+        bbone:
+          ansible_host: 192.168.6.2
+          host_entry: "bbone-01-1004B.lab-lpp.local"
+          ansible_user: debian
+          ansible_password: temppwd
+          ansible_become: yes
+          ansible_become_password: temppwd
+
+    installed_bbones:
+      hosts:
+        bbone-01-1008B.lab-lpp.local:
+          ansible_host: 129.104.6.213
+          desc: beaglebone salle laser Cyril Drag
+        bbone-01-1004B.lab-lpp.local:
+          ansible_host: 129.104.6.214
+          desc: beaglebone salle manip olivier
+
+    uninstalled_bbones:
+      hosts:
+        bbone-aile0.lab-lpp.local:
+          ansible_host: 129.104.6.212
+          desc: beaglebone salle serveurs aile 0
+
+
+    all_bbones:
+      installed_bbones:
+      uninstalled_bbones:
