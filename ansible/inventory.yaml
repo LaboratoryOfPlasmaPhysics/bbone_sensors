@@ -6,7 +6,7 @@ all:
       hosts:
         bbone:
           ansible_host: 192.168.6.2
-          host_entry: "bbone-01-1004B.lab-lpp.local"
+          host_entry: "bbone-aile0.lab-lpp.local"
           ansible_user: debian
           ansible_password: temppwd
           ansible_become: yes
@@ -14,6 +14,9 @@ all:
 
     installed_bbones:
       hosts:
+        bbone-aile0.lab-lpp.local:
+          ansible_host: 129.104.6.212
+          desc: beaglebone salle serveurs aile 0
         bbone-01-1008B.lab-lpp.local:
           ansible_host: 129.104.6.213
           desc: beaglebone salle laser Cyril Drag
@@ -23,9 +26,6 @@ all:
 
     uninstalled_bbones:
       hosts:
-        bbone-aile0.lab-lpp.local:
-          ansible_host: 129.104.6.212
-          desc: beaglebone salle serveurs aile 0
 
 
     all_bbones:
